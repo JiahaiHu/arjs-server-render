@@ -9,10 +9,12 @@ ARjs.Source = THREEx.ArToolkitSource = function (parameters) {
 
     // handle default parameters
     this.parameters = {
-        // type of source - ['webcam', 'image', 'video']
+        // type of source - ['webcam', 'image', 'video', 'webrtc']
         sourceType: 'webcam',
         // url of the source - valid if sourceType = image|video
         sourceUrl: null,
+        // mediaStream of the source - valid if sourceType = webrtc
+        stream: null,
 
         // Device id of the camera to use (optional)
         deviceId: null,
@@ -63,6 +65,8 @@ ARjs.Source.prototype.init = function (onReady, onError) {
     } else if (this.parameters.sourceType === 'webcam') {
         // var domElement = this._initSourceWebcamOld(onSourceReady)
         var domElement = this._initSourceWebcam(onSourceReady, onError)
+    } else if (this.parameters.sourceType === 'webrtc') {
+        var domElement = this._initSourceWebrtc(onSourceReady, onError)
     } else {
         console.assert(false)
     }
@@ -138,6 +142,24 @@ ARjs.Source.prototype._initSourceVideo = function (onReady) {
     domElement.style.width = this.parameters.displayWidth + 'px';
     domElement.style.height = this.parameters.displayHeight + 'px';
 
+    domElement.onloadeddata = onReady;
+    return domElement
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//          handle webrtc source
+////////////////////////////////////////////////////////////////////////////////
+
+ARjs.Source.prototype._initSourceWebrtc = function (onReady, onError) {
+    var domElement = document.createElement('video');
+    domElement.setAttribute('autoplay', '');
+    domElement.setAttribute('muted', '');
+    domElement.setAttribute('playsinline', '');
+    domElement.style.width = this.parameters.displayWidth + 'px'
+    domElement.style.height = this.parameters.displayHeight + 'px'
+
+	domElement.srcObject = this.parameters.stream;
+	
     domElement.onloadeddata = onReady;
     return domElement
 }
