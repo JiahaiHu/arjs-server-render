@@ -64,16 +64,24 @@ function startWebRTC(isOfferer) {
     }
   }
 
-  // When a remote stream arrives display it in the #remoteVideo element
-  pc.ontrack = event => {
-    const stream = event.streams[0];
-    // if (!remoteVideo.srcObject || remoteVideo.srcObject.id !== stream.id) {
-    //   remoteVideo.srcObject = stream;
-    // }
-    if (!isOfferer) {
+  if (isOfferer) {
+    var remoteVideo = document.createElement('video');
+    remoteVideo.setAttribute('autoplay', '');
+    remoteVideo.setAttribute('muted', '');
+    remoteVideo.setAttribute('playsinline', '');
+    document.body.appendChild(remoteVideo);
+
+    // When a remote stream arrives display it in the #remoteVideo element
+    pc.ontrack = event => {
+      const stream = event.streams[0];
+      remoteVideo.srcObject = stream;
+    }
+  } else {
+    pc.ontrack = event => {
+      const stream = event.streams[0];
       ar(stream);
     }
-  };
+  }
 
   if (isOfferer) {  // local peer (client)
     // webcam stream
@@ -81,8 +89,13 @@ function startWebRTC(isOfferer) {
       audio: false,
       video: true,
     }).then(stream => {
-      // Display webcam video in #localVideo element
-      // localVideo.srcObject = stream;
+      // Display webcam video
+      var webcam = document.createElement('video');
+      webcam.setAttribute('autoplay', '');
+      webcam.setAttribute('muted', '');
+      webcam.setAttribute('playsinline', '');
+      webcam.srcObject = stream;
+      document.body.appendChild(webcam);
       // Add your stream to be sent to the conneting peer
       stream.getTracks().forEach(track => pc.addTrack(track, stream));
     }, onError);
@@ -94,10 +107,7 @@ function startWebRTC(isOfferer) {
     });
     renderer.setClearColor(new THREE.Color('lightgrey'), 0)
     // renderer.setPixelRatio( 1/2 );
-    renderer.setSize( window.innerWidth, window.innerHeight );
-    renderer.domElement.style.position = 'absolute'
-    renderer.domElement.style.top = '0px'
-    renderer.domElement.style.left = '0px'
+    renderer.setSize( 640, 480 );
     document.body.appendChild( renderer.domElement );
 
     // canvas stream
@@ -170,11 +180,11 @@ function ar(stream) {
 		onResize()
 	})
 	function onResize(){
-		arToolkitSource.onResizeElement()
-		arToolkitSource.copyElementSizeTo(renderer.domElement)
-		if( arToolkitContext.arController !== null ){
-			arToolkitSource.copyElementSizeTo(arToolkitContext.arController.canvas)
-		}
+		// arToolkitSource.onResizeElement()
+		// arToolkitSource.copyElementSizeTo(renderer.domElement)
+		// if( arToolkitContext.arController !== null ){
+		// 	arToolkitSource.copyElementSizeTo(arToolkitContext.arController.canvas)
+		// }
   }
   
   ////////////////////////////////////////////////////////////////////////////////
